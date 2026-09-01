@@ -223,3 +223,5 @@ __marimo__/
 
 
 wifi_credentials.json
+.vscode
+.micropico
