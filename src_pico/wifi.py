@@ -1,21 +1,32 @@
-import rp2
-import network
 import json
+import network
+import rp2
 import time
+
 
 rp2.country("SE")
 
-with open("edge_computing/wifi/wifi_cred.json") as file:
+with open("wifi_credentials.json") as file:
     credentials = json.load(file)
 
-def connect_to_wifi(waiting_time=10):
+
+def connect_wifi(waiting_time=10):
+    # station interface -> makes into client mode
     wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(credentials["WIFI_SSID"], credentials["WIFI_PASSWORD"])
+    wlan.active(True)  # powers on radio WIFI on pico
+    wlan.connect(credentials.get("WIFI_SSID"), credentials.get("WIFI_PASSWORD"))
+    print(wlan)
 
-    while not wlan.isconnected():
-        print("Connecting to WiFi...")
-        time.sleep(1)
+    # (device ip, subnet mask, router/gateway, DNS server)
+    print(f"{wlan.ifconfig()}")
 
-    print("Connected to WiFi!")
-    print("Network config:", wlan.ifconfig())
+    while waiting_time > 0:
+        if wlan.isconnected():
+            print("Connected to wifi")
+            break
+
+        waiting_time -= 1
+        print("Trying to connect wifi, pls wait")
+        time.sleep(2)
+
+    return wlan.isconnected()
